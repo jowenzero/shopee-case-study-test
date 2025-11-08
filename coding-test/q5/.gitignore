@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+
+# Data files
+data/*.db
+data/*.json
+
+# Uploads folder (only for testing)
+# Keep test receipt images, ignore generated receipt_* files
+uploads/receipt_*
+!uploads/test_*.jpg
+!uploads/test_*.png
+!uploads/.gitkeep
+!data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml

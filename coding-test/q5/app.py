@@ -265,6 +265,16 @@ with tabs[1]:
                             price_str = f"Rp{item['price']:,.0f}" if item['price'] else "N/A"
                             qty_str = f"{item['quantity']}x" if item['quantity'] != 1.0 else ""
                             st.markdown(f"- {qty_str} {item['item_name']}: {price_str}")
+
+                    st.markdown("---")
+                    if st.button("Delete Receipt", key=f"delete_receipt_{receipt['id']}", type="secondary"):
+                        with st.spinner("Deleting receipt..."):
+                            result = storage_integration.delete_receipt(receipt['id'])
+                            if result['success']:
+                                st.success(f"Receipt {receipt['id']} deleted successfully!")
+                                st.rerun()
+                            else:
+                                st.error(f"Failed to delete receipt: {result.get('error', 'Unknown error')}")
         else:
             st.info("No receipts stored yet. Upload a receipt to get started!")
 

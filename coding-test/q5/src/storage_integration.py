@@ -250,6 +250,59 @@ class StorageIntegration:
 
         return enriched_results[:top_k]
 
+    def delete_receipt(self, receipt_id: int) -> Dict[str, Any]:
+        """
+        Delete receipt from both SQLite and Vector DB
+
+        Args:
+            receipt_id: Receipt ID to delete
+
+        Returns:
+            Dictionary with deletion result
+        """
+        try:
+            receipt = self.db.get_receipt_with_items(receipt_id)
+            if not receipt:
+                return {
+                    'success': False,
+                    'error': 'Receipt not found'
+                }
+
+            if receipt.get('vector_id'):
+                self.vector_db.delete_vector(receipt['vector_id'])
+                print(f"  ✓ Deleted receipt vector: {receipt['vector_id']}")
+
+            for item in receipt.get('items', []):
+                if item.get('vector_id'):
+                    self.vector_db.delete_vector(item['vector_id'])
+
+            item_count = len(receipt.get('items', []))
+            if item_count > 0:
+                print(f"  ✓ Deleted {item_count} item vectors")
+
+            success = self.db.delete_receipt(receipt_id)
+
+            if success:
+                self.vector_db.save(self.vector_db_path)
+                print(f"  ✓ Receipt {receipt_id} deleted from both databases")
+                return {
+                    'success': True,
+                    'receipt_id': receipt_id,
+                    'items_deleted': item_count
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': 'Failed to delete from SQLite'
+                }
+
+        except Exception as e:
+            print(f"  ✗ Delete error: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
     def get_statistics(self) -> Dict[str, Any]:
         """
         Get storage statistics from both databases
